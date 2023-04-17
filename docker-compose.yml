@@ -1,0 +1,48 @@
+version : "4"
+
+services:
+  django:
+    build: .
+    container_name: django
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - WEBDRIVER_URL=http://selenium:4444/wd/hub
+      - REDIS_URL=redis://redis:6379
+    depends_on: 
+      - redis
+      - selenium
+  celery:
+    build: .
+    command: celery -A djangoproject worker -l info --concurrency=2
+    volumes:
+      - .:/usr/src/app/
+    environment:
+      - DEBUG=1
+      - WEBDRIVER_URL=http://selenium:4444/wd/hub
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+  celery-beat:
+    build: .
+    command: celery -A djangoproject beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/usr/src/app/
+    environment:
+      - DEBUG=1
+      - WEBDRIVER_URL=http://selenium:4444/wd/hub
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+  redis:
+    image: "redis"
+  selenium:
+    image: "selenium/standalone-chrome"
+volumes:
+  db-data:
