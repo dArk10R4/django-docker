@@ -20,11 +20,18 @@ def scrape_all():
 
     all_instagram_credentials = InstagramCredentials.objects.all()
     options = webdriver.ChromeOptions()
+
+    
+    caps = webdriver.DesiredCapabilities.CHROME.copy()
+    caps["networkConnectionEnabled"] = True
+
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
-    command_executor = os.environ['WEBDRIVER_URL']
-    driver = webdriver.Remote(command_executor=command_executor,options=options)
-
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--headless')
+    command_executor = 'http://selenium:4444/wd/hub'
+    driver = webdriver.Remote(command_executor=command_executor,options=options,desired_capabilities=caps)
+    # driver = webdriver.Chrome('')
     for instagram_creds in all_instagram_credentials:
         instagram_username = instagram_creds.instagram_username
         profile_url = f"https://www.instagram.com/{instagram_username}/"

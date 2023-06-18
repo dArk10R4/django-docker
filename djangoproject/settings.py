@@ -15,7 +15,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-redis = os.environ['REDIS_URL']
+redis = "redis://localhost:6379"
+# os.environ['REDIS_URL'] 
 
 CELERY_BROKER_URL = redis
 CELERY_RESULT_BACKEND = redis
